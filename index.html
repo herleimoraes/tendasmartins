@@ -5,10 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Pedidos</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; margin: 0; }
-        .container { max-width: 900px; margin: auto; }
-        h2 { color: #333; }
-        @media screen and (max-width: 600px) {
+      body { font-family: sans-serif; padding: 20px; background: #f4f4f9; margin: 0; }
+.container { max-width: 900px; margin: auto; }
+h2 { color: #333; }
+
+/* Botão e Status */
+.btn-novo { 
+    background: #28a745; color: white; padding: 12px 20px; 
+    text-decoration: none; border-radius: 5px; display: inline-block; 
+    margin-bottom: 20px; font-weight: bold;
+}
+#status-msg { margin-bottom: 10px; color: #666; font-style: italic; }
+
+/* Regras Gerais da Tabela (Desktop) */
+.tabela-wrapper { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+table { width: 100%; border-collapse: collapse; }
+th, td { border-bottom: 1px solid #eee; padding: 15px; text-align: left; }
+th { background: #007bff; color: white; text-transform: uppercase; font-size: 13px; }
+tr:hover { background: #f9f9f9; }
+
+.link-foto { 
+    color: #007bff; text-decoration: none; font-weight: bold; 
+    border: 1px solid #007bff; padding: 5px 10px; border-radius: 4px; font-size: 12px; 
+}
+.link-foto:hover { background: #007bff; color: white; }
+
+/* REGRAS PARA CELULAR (Sempre por último) */
+@media screen and (max-width: 600px) {
     table, thead, tbody, th, td, tr { 
         display: block; 
     }
@@ -22,24 +45,31 @@
     
     tr { 
         border: 1px solid #ccc; 
-        margin-bottom: 10px;
+        margin-bottom: 15px;
         border-radius: 8px;
         background: #fff;
+        padding: 5px;
     }
     
     td { 
         border: none;
         border-bottom: 1px solid #eee; 
         position: relative;
-        padding-left: 50%; 
+        padding-left: 45% !important; /* Força o espaço para o rótulo */
         text-align: right;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
     }
+
+    td:last-child { border-bottom: none; }
     
-    /* Cria rótulos para cada dado */
+    /* Cria rótulos para cada dado usando os pseudoelementos */
     td:before { 
         position: absolute;
         left: 10px;
-        width: 45%; 
+        width: 40%; 
         padding-right: 10px; 
         white-space: nowrap;
         text-align: left;
@@ -52,19 +82,6 @@
     td:nth-of-type(3):before { content: "Descrição"; }
     td:nth-of-type(4):before { content: "Ação"; }
 }
-        .btn-novo { 
-            background: #28a745; color: white; padding: 12px 20px; 
-            text-decoration: none; border-radius: 5px; display: inline-block; 
-            margin-bottom: 20px; font-weight: bold;
-        }
-        .tabela-wrapper { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border-bottom: 1px solid #eee; padding: 15px; text-align: left; }
-        th { background: #007bff; color: white; text-transform: uppercase; font-size: 13px; }
-        tr:hover { background: #f9f9f9; }
-        .link-foto { color: #007bff; text-decoration: none; font-weight: bold; border: 1px solid #007bff; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
-        .link-foto:hover { background: #007bff; color: white; }
-        #status-msg { margin-bottom: 10px; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
