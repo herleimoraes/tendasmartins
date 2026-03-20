@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <input type="file" id="arquivo">
+    <button onclick="enviar()">Upload</button>
+    <div id="lista"></div>
+
+    <script>
+      function enviar() {
+        const file = document.getElementById('arquivo').files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          google.script.run.withSuccessHandler(res => {
+            alert("Upload concluído: " + res.name);
+            carregarArquivos();
+          }).uploadFile(e.target.result, file.name, "https://drive.google.com/drive/folders/1De-CuMPKqvcAEYB0pMAqyVrE9Pp1Gzq5?usp=sharing");
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function carregarArquivos() {
+        google.script.run.withSuccessHandler(files => {
+          const div = document.getElementById('lista');
+          div.innerHTML = files.map(f => `<p><a href="${f.url}" target="_blank">${f.name}</a></p>`).join('');
+        }).listFiles("https://drive.google.com/drive/folders/1De-CuMPKqvcAEYB0pMAqyVrE9Pp1Gzq5?usp=sharing");
+      }
+      
+      window.onload = carregarArquivos;
+    </script>
+  </body>
+</html>
