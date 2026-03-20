@@ -9,91 +9,91 @@
         .container { max-width: 900px; margin: auto; }
         h2 { color: #333; margin-bottom: 20px; }
 
-        /* Ajuste no corpo do Modal para permitir o rodapé fixo */
-#modalConteudo {
-    background: white; 
-    width: 95%; 
-    height: 90%; 
-    border-radius: 10px; 
-    position: relative; 
-    display: flex; 
-    flex-direction: column; 
-    overflow: hidden; /* Garante que o botão não fuja da borda arredondada */
+        /* ... mantenha o body e container ... */
+
+@media screen and (max-width: 600px) {
+    table, certain, tbody, th, td, tr { display: block; }
+    thead { display: none; } /* Esconde o cabeçalho no mobile */
+
+    tr { 
+        border: 1px solid #ddd; 
+        margin-bottom: 20px;
+        border-radius: 12px;
+        background: #fff;
+        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    /* Linha 1: Data e Cliente lado a lado */
+    td:nth-of-type(1), td:nth-of-type(2) {
+        display: inline-block;
+        width: 50%;
+        border: none;
+        padding: 10px 5px;
+        box-sizing: border-box;
+        text-align: left;
+    }
+
+    /* Estilo específico para destacar o Cliente */
+    td:nth-of-type(2) { 
+        text-align: right; 
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    /* Linha 2: Descrição embaixo */
+    td:nth-of-type(3) {
+        display: block;
+        width: 100%;
+        border-top: 1px solid #f0f0f0;
+        padding: 15px 5px;
+        text-align: left;
+        color: #555;
+        font-size: 14px;
+    }
+
+    /* Linha 3: Botões de Ação */
+    td:nth-of-type(4) {
+        display: flex;
+        flex-direction: column; /* Botões um embaixo do outro */
+        gap: 8px;
+        width: 100%;
+        padding: 10px 0 5px 0;
+        border-top: 1px dashed #eee;
+    }
+
+    /* Esconde os rótulos automáticos "Data:", "Cliente:" que usamos antes */
+    td:before { display: none !important; }
+
+    /* Estilo dos Botões Mobile */
+    .btn-acao {
+        width: 100%;
+        padding: 12px;
+        border-radius: 6px;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 12px;
+        text-align: center;
+        border: 1px solid #ddd;
+        cursor: pointer;
+    }
+
+    .btn-visualizar { background: #f8f9fa; color: #333; }
+    .btn-editar { background: #e9ecef; color: #495057; }
 }
 
-/* O novo botão de fechar no rodapé */
+/* Modal com cor Neutra */
 .btn-fechar-modal {
     width: 100%;
     padding: 15px;
-    background: #dc3545; /* Vermelho padrão */
+    background: #6c757d; /* Cinza Neutro */
     color: white;
     border: none;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
-    text-transform: uppercase;
-    transition: background 0.3s;
 }
-
-.btn-fechar-modal:hover {
-    background: #c82333;
-}
-
-/* Ajuste para o iframe não ocupar o espaço do botão */
-#frameArquivo {
-    flex-grow: 1; /* Faz o iframe ocupar todo o espaço restante acima do botão */
-    width: 100%;
-    border: none;
-}
-
-        /* Estilo da Barra de Busca */
-        .busca-container { margin-bottom: 20px; position: relative; }
-        #inputBusca { 
-            width: 100%; padding: 12px 15px; border: 2px solid #ddd; 
-            border-radius: 8px; font-size: 16px; outline: none; transition: border-color 0.3s;
-            box-sizing: border-box;
-        }
-        #inputBusca:focus { border-color: #007bff; }
-
-        .btn-novo { 
-            background: #28a745; color: white; padding: 12px 20px; 
-            text-decoration: none; border-radius: 5px; display: inline-block; 
-            margin-bottom: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        #status-msg { margin-bottom: 10px; color: #666; font-style: italic; font-size: 14px; }
-
-        .tabela-wrapper { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border-bottom: 1px solid #eee; padding: 15px; text-align: left; }
-        th { background: #007bff; color: white; text-transform: uppercase; font-size: 13px; }
-        tr:hover { background: #f9f9f9; }
-
-        .link-foto { 
-            color: #007bff; text-decoration: none; font-weight: bold; 
-            border: 1px solid #007bff; padding: 6px 12px; border-radius: 4px; 
-            font-size: 12px; background: none; cursor: pointer;
-        }
-
-        /* RESPONSIVIDADE MOBILE */
-        @media screen and (max-width: 600px) {
-            table, thead, tbody, th, td, tr { display: block; }
-            thead tr { position: absolute; top: -9999px; left: -9999px; }
-            tr { border: 1px solid #ccc; margin-bottom: 15px; border-radius: 8px; background: #fff; padding: 5px; }
-            td { 
-                border: none; border-bottom: 1px solid #eee; position: relative; 
-                padding-left: 45% !important; text-align: right; min-height: 45px; 
-                display: flex; align-items: center; justify-content: flex-end; 
-            }
-            td:last-child { border-bottom: none; }
-            td:before { 
-                position: absolute; left: 10px; width: 40%; padding-right: 10px; 
-                white-space: nowrap; text-align: left; font-weight: bold; color: #007bff; 
-            }
-            td:nth-of-type(1):before { content: "Data"; }
-            td:nth-of-type(2):before { content: "Cliente"; }
-            td:nth-of-type(3):before { content: "Descrição"; }
-            td:nth-of-type(4):before { content: "Ação"; }
-        }
+.btn-fechar-modal:hover { background: #5a6268; }
     </style>
 </head>
 <body>
@@ -147,6 +147,11 @@
             document.body.style.overflow = 'auto';
         }
 
+        function editarRegistro(cliente) {
+    alert("Função de editar para o cliente " + cliente + " será implementada em breve!");
+    // Aqui no futuro poderíamos abrir a página de cadastro passando o ID/Nome para carregar os dados
+}
+
         // FUNÇÃO DE BUSCA/FILTRO
         function filtrarTabela() {
             const input = document.getElementById('inputBusca');
@@ -193,10 +198,11 @@
                     const row = `
                         <tr>
                             <td>${dataFormatada}</td>
-                            <td><strong>${item.cliente || ''}</strong></td>
-                            <td>${item.descricao || ''}</td>
+                            <td>${item.cliente || ''}</td>
+                            <td>${item.descricao || 'Sem descrição'}</td>
                             <td>
-                                <button onclick="abrirModal('${item.arquivoUrl}')" class="link-foto">VISUALIZAR</button>
+                                <button onclick="abrirModal('${item.arquivoUrl}')" class="btn-acao btn-visualizar">Visualizar anexos</button>
+                                <button onclick="editarRegistro('${item.cliente}')" class="btn-acao btn-editar">Editar registro</button>
                             </td>
                         </tr>
                     `;
