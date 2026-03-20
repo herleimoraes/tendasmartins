@@ -8,6 +8,50 @@
         body { font-family: sans-serif; padding: 20px; background: #f4f4f9; margin: 0; }
         .container { max-width: 900px; margin: auto; }
         h2 { color: #333; }
+        @media screen and (max-width: 600px) {
+    table, thead, tbody, th, td, tr { 
+        display: block; 
+    }
+    
+    /* Esconde o cabeçalho azul no mobile */
+    thead tr { 
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    
+    tr { 
+        border: 1px solid #ccc; 
+        margin-bottom: 10px;
+        border-radius: 8px;
+        background: #fff;
+    }
+    
+    td { 
+        border: none;
+        border-bottom: 1px solid #eee; 
+        position: relative;
+        padding-left: 50%; 
+        text-align: right;
+    }
+    
+    /* Cria rótulos para cada dado */
+    td:before { 
+        position: absolute;
+        left: 10px;
+        width: 45%; 
+        padding-right: 10px; 
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: #007bff;
+    }
+    
+    td:nth-of-type(1):before { content: "Data"; }
+    td:nth-of-type(2):before { content: "Cliente"; }
+    td:nth-of-type(3):before { content: "Descrição"; }
+    td:nth-of-type(4):before { content: "Ação"; }
+}
         .btn-novo { 
             background: #28a745; color: white; padding: 12px 20px; 
             text-decoration: none; border-radius: 5px; display: inline-block; 
