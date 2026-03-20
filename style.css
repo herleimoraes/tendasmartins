@@ -1,88 +1,152 @@
-/* Configurações Gerais */
+/* Configurações Gerais - Fundo Cinza Claro */
 body { font-family: sans-serif; padding: 20px; background: #f4f4f9; margin: 0; color: #333; }
-.container { max-width: 900px; margin: auto; }
-h2 { color: #333; margin-bottom: 20px; }
+.container { max-width: 900px; margin: auto; padding-bottom: 30px; }
+h2 { color: #333; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
 
 /* Barra de Busca */
 .busca-container { margin-bottom: 20px; }
 #inputBusca { 
-    width: 100%; padding: 12px 15px; border: 2px solid #ddd; 
-    border-radius: 8px; font-size: 16px; outline: none; 
-    box-sizing: border-box; transition: border-color 0.3s;
+    width: 100%; padding: 15px; border: 1px solid #ddd; 
+    border-radius: 10px; font-size: 16px; outline: none; 
+    box-sizing: border-box; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
 }
-#inputBusca:focus { border-color: #007bff; }
+#inputBusca:focus { border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
 
 /* Botões e Status */
 .btn-novo { 
     background: #28a745; color: white; padding: 12px 20px; 
-    text-decoration: none; border-radius: 5px; display: inline-block; 
-    margin-bottom: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-decoration: none; border-radius: 8px; display: inline-block; 
+    margin-bottom: 25px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: background 0.2s;
 }
-#status-msg { margin-bottom: 10px; color: #666; font-style: italic; font-size: 14px; }
+.btn-novo:hover { background: #218838; }
+#status-msg { margin-bottom: 15px; color: #777; font-style: italic; font-size: 14px; }
 
-/* Tabela Desktop */
-.tabela-wrapper { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+/* Tabela Desktop (Mantida para telas grandes) */
+.tabela-wrapper { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 table { width: 100%; border-collapse: collapse; }
-th, td { border-bottom: 1px solid #eee; padding: 15px; text-align: left; }
-th { background: #007bff; color: white; text-transform: uppercase; font-size: 13px; }
-tr:hover { background: #f9f9f9; }
+th, td { border-bottom: 1px solid #eee; padding: 18px 15px; text-align: left; }
+th { background: #007bff; color: white; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+tr:hover { background: #fbfbfb; }
 
-/* Botões de Ação */
+/* Botões de Ação na Tabela */
 .btn-acao {
-    padding: 8px 12px; border-radius: 4px; font-weight: bold; 
-    font-size: 12px; cursor: pointer; border: 1px solid #ddd;
-    text-transform: uppercase; transition: 0.2s;
+    padding: 8px 14px; border-radius: 6px; font-weight: bold; 
+    font-size: 11px; cursor: pointer; border: 1px solid #ddd;
+    text-transform: uppercase; transition: all 0.2s;
 }
-.btn-visualizar { background: #f8f9fa; color: #007bff; border-color: #007bff; }
+.btn-visualizar { background: white; color: #007bff; border-color: #007bff; }
+.btn-visualizar:hover { background: #007bff; color: white; }
 .btn-editar { background: #f8f9fa; color: #6c757d; margin-left: 5px; }
+.btn-editar:hover { background: #e2e6ea; color: #333; }
 
-/* MODAL */
+/* =========================================
+   MODAL - NOVO TOM DE AZUL NEUTRO
+   ========================================= */
 #modalArquivo {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;
 }
 #modalConteudo {
-    background: white; width: 95%; height: 90%; border-radius: 10px; 
+    background: white; width: 95%; height: 90%; border-radius: 15px; 
     position: relative; display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 #frameArquivo { flex-grow: 1; width: 100%; border: none; }
+
+/* Botão Fechar Modal - Azul Neutro (Slate/Steel Blue) */
 .btn-fechar-modal {
-    width: 100%; padding: 15px; background: #6c757d; color: white; 
-    border: none; font-size: 16px; font-weight: bold; cursor: pointer;
+    width: 100%; padding: 18px; 
+    background: #546e7a; /* Novo Tom: Azul Ardósia Neutro */
+    color: white; border: none; 
+    font-size: 16px; font-weight: bold; 
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+    transition: background 0.2s;
 }
+.btn-fechar-modal:hover { background: #455a64; }
 
-/* FOCO MOBILE (Regras para telas até 600px) */
-@media screen and (max-width: 600px) {
+
+/* =========================================
+   FOCO MOBILE - LAYOUT DE CARDS CORRIGIDO
+   (Para telas até 700px)
+   ========================================= */
+@media screen and (max-width: 700px) {
+    /* Remove o container branco de fundo que envolvia os cards */
+    .tabela-wrapper { 
+        background: none; 
+        box-shadow: none; 
+        border-radius: 0;
+        overflow: visible;
+    }
+    
     table, thead, tbody, th, td, tr { display: block; }
-    thead { display: none; } /* Esconde o cabeçalho azul */
+    thead { display: none; } /* Esconde o cabeçalho original */
 
+    /* Estilo do CARD (tr) - Fundo branco independente */
     tr { 
-        border: 1px solid #ddd; margin-bottom: 20px;
-        border-radius: 12px; background: #fff; padding: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border: 1px solid #e0e0e0; margin-bottom: 18px;
+        border-radius: 12px; background: #fff; padding: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        position: relative;
     }
 
-    /* Data e Cliente na mesma linha */
-    td:nth-of-type(1), td:nth-of-type(2) {
-        display: inline-block; width: 50%; border: none; padding: 10px 5px;
-        box-sizing: border-box; vertical-align: top;
-    }
-    td:nth-of-type(1) { text-align: left; color: #888; font-size: 13px; }
-    td:nth-of-type(2) { text-align: right; color: #007bff; font-weight: bold; }
+    /* Remove padding lateral padrão dos TDs mobile */
+    td { padding: 0; border: none; }
 
-    /* Descrição em baixo */
-    td:nth-of-type(3) {
-        display: block; width: 100%; border-top: 1px solid #f0f0f0;
-        padding: 15px 5px; text-align: left; color: #555; font-size: 14px;
+    /* --- LINHA 1: Data e Cliente --- */
+    /* Container para alinhar data e cliente */
+    tbody tr td:nth-of-type(1), 
+    tbody tr td:nth-of-type(2) {
+        display: inline-block;
+        vertical-align: top;
+        padding-bottom: 10px;
     }
 
-    /* Botões de Ação empilhados */
-    td:nth-of-type(4) {
+    /* DATA (td 1) - Esquerda */
+    tbody tr td:nth-of-type(1) { 
+        width: 40%; 
+        text-align: left; 
+        color: #888; 
+        font-size: 13px;
+    }
+
+    /* CLIENTE (td 2) - Direita e em Destaque */
+    tbody tr td:nth-of-type(2) { 
+        width: 60%; 
+        text-align: right; 
+        color: #007bff; /* Azul de Destaque */
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    /* Remove os :before antigos que quebravam o layout */
+    tbody tr td:before { display: none !important; }
+
+    /* --- LINHA 2: Descrição --- */
+    /* DESCRIÇÃO (td 3) - Embaixo */
+    tbody tr td:nth-of-type(3) {
+        display: block; width: 100%; 
+        border-top: 1px solid #f0f0f0;
+        padding: 15px 0; 
+        text-align: left; 
+        color: #555; font-size: 14px; line-height: 1.4;
+    }
+
+    /* --- LINHA 3: Botões de Ação --- */
+    /* AÇÕES (td 4) - Empilhados */
+    tbody tr td:nth-of-type(4) {
         display: flex; flex-direction: column; gap: 10px;
-        width: 100%; padding: 15px 0 5px 0; border-top: 1px dashed #eee;
+        width: 100%; padding-top: 15px; border-top: 1px dashed #eee;
     }
 
-    .btn-acao { width: 100%; margin: 0; padding: 12px; font-size: 13px; }
-    .btn-visualizar { background: #f1f3f5; }
-    .btn-editar { background: #f1f3f5; }
+    /* Estilo dos Botões Mobile Grandes */
+    .btn-acao { 
+        width: 100%; margin: 0; padding: 14px; 
+        font-size: 13px; border-radius: 8px; 
+        letter-spacing: 1px;
+    }
+    .btn-visualizar { background: #f1f3f5; color: #007bff; border-color: #d0d7de; }
+    .btn-visualizar:hover { background: #e1e5ea; }
+    .btn-editar { background: #f1f3f5; color: #6c757d; border-color: #d0d7de; }
+    .btn-editar:hover { background: #e1e5ea; }
 }
