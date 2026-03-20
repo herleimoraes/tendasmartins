@@ -3,18 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Pedidos</title>
+    <title>Lista de Pedidos - OS Martins</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f4f4f9; margin: 0; }
         .container { max-width: 900px; margin: auto; }
-        h2 { color: #333; }
+        h2 { color: #333; margin-bottom: 20px; }
+
+        /* Estilo da Barra de Busca */
+        .busca-container { margin-bottom: 20px; position: relative; }
+        #inputBusca { 
+            width: 100%; padding: 12px 15px; border: 2px solid #ddd; 
+            border-radius: 8px; font-size: 16px; outline: none; transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        #inputBusca:focus { border-color: #007bff; }
 
         .btn-novo { 
             background: #28a745; color: white; padding: 12px 20px; 
             text-decoration: none; border-radius: 5px; display: inline-block; 
-            margin-bottom: 20px; font-weight: bold;
+            margin-bottom: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        #status-msg { margin-bottom: 10px; color: #666; font-style: italic; }
+        #status-msg { margin-bottom: 10px; color: #666; font-style: italic; font-size: 14px; }
 
         .tabela-wrapper { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; }
@@ -24,18 +33,18 @@
 
         .link-foto { 
             color: #007bff; text-decoration: none; font-weight: bold; 
-            border: 1px solid #007bff; padding: 5px 10px; border-radius: 4px; 
+            border: 1px solid #007bff; padding: 6px 12px; border-radius: 4px; 
             font-size: 12px; background: none; cursor: pointer;
         }
 
-        /* REGRAS PARA CELULAR */
+        /* RESPONSIVIDADE MOBILE */
         @media screen and (max-width: 600px) {
             table, thead, tbody, th, td, tr { display: block; }
             thead tr { position: absolute; top: -9999px; left: -9999px; }
             tr { border: 1px solid #ccc; margin-bottom: 15px; border-radius: 8px; background: #fff; padding: 5px; }
             td { 
                 border: none; border-bottom: 1px solid #eee; position: relative; 
-                padding-left: 45% !important; text-align: right; min-height: 40px; 
+                padding-left: 45% !important; text-align: right; min-height: 45px; 
                 display: flex; align-items: center; justify-content: flex-end; 
             }
             td:last-child { border-bottom: none; }
@@ -53,6 +62,11 @@
 <body>
     <div class="container">
         <h2>📋 Pedidos Registrados</h2>
+        
+        <div class="busca-container">
+            <input type="text" id="inputBusca" onkeyup="filtrarTabela()" placeholder="🔍 Buscar por cliente ou descrição...">
+        </div>
+
         <div id="status-msg">Carregando dados do servidor...</div>
         <a href="cadastro.html" class="btn-novo">+ Novo Registro</a>
 
@@ -72,16 +86,16 @@
     </div>
 
     <div id="modalArquivo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
-        <div style="background:white; width:90%; height:90%; border-radius:10px; position:relative; display:flex; flex-direction:column;">
+        <div style="background:white; width:95%; height:90%; border-radius:10px; position:relative; display:flex; flex-direction:column;">
             <button onclick="fecharModal()" style="position:absolute; top:-15px; right:-15px; background:red; color:white; border:none; border-radius:50%; width:40px; height:40px; font-weight:bold; cursor:pointer; box-shadow: 0 2px 5px #000; z-index: 10000;">X</button>
             <iframe id="frameArquivo" src="" style="width:100%; height:100%; border:none; border-radius:10px;"></iframe>
         </div>
     </div>
 
     <script>
-        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbwJtiRVRnzqr3lEQo05WAfoEQQWSx3bzJbHfKCNM0sYzOPJbfnHHmvAaCpzCPBa7q52SQ/exec';
+        const URL_SCRIPT = 'SUA_URL_DO_WEB_APP_AQUI';
 
-        // FUNÇÕES DO MODAL (Agora fora de tudo para serem globais)
+        // FUNÇÕES DO MODAL
         function abrirModal(url) {
             const previewUrl = url.replace('/view', '/preview');
             document.getElementById('frameArquivo').src = previewUrl;
@@ -93,6 +107,23 @@
             document.getElementById('modalArquivo').style.display = 'none';
             document.getElementById('frameArquivo').src = '';
             document.body.style.overflow = 'auto';
+        }
+
+        // FUNÇÃO DE BUSCA/FILTRO
+        function filtrarTabela() {
+            const input = document.getElementById('inputBusca');
+            const filtro = input.value.toLowerCase();
+            const tabela = document.getElementById('corpoTabela');
+            const linhas = tabela.getElementsByTagName('tr');
+
+            for (let i = 0; i < linhas.length; i++) {
+                const textoLinha = linhas[i].textContent || linhas[i].innerText;
+                if (textoLinha.toLowerCase().indexOf(filtro) > -1) {
+                    linhas[i].style.display = "";
+                } else {
+                    linhas[i].style.display = "none";
+                }
+            }
         }
 
         async function carregarDados() {
@@ -108,11 +139,11 @@
 
                 if (!dados || dados.length === 0) {
                     status.innerText = "Nenhum registro encontrado.";
-                    corpo.innerHTML = '<tr><td colspan="4" style="text-align:center">Planilha vazia.</td></tr>';
+                    corpo.innerHTML = '<tr><td colspan="4" style="text-align:center">Nenhum dado disponível.</td></tr>';
                     return;
                 }
 
-                status.innerText = `Exibindo ${dados.length} registros.`;
+                status.innerText = `Total: ${dados.length} registros.`;
 
                 dados.reverse().forEach(item => {
                     let dataFormatada = "---";
@@ -136,7 +167,7 @@
 
             } catch (e) {
                 console.error("Erro:", e);
-                status.innerText = "Erro ao carregar dados.";
+                status.innerText = "Erro ao conectar com o Google.";
             }
         }
 
