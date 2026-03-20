@@ -9,6 +9,43 @@
         .container { max-width: 900px; margin: auto; }
         h2 { color: #333; margin-bottom: 20px; }
 
+        /* Ajuste no corpo do Modal para permitir o rodapé fixo */
+#modalConteudo {
+    background: white; 
+    width: 95%; 
+    height: 90%; 
+    border-radius: 10px; 
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; /* Garante que o botão não fuja da borda arredondada */
+}
+
+/* O novo botão de fechar no rodapé */
+.btn-fechar-modal {
+    width: 100%;
+    padding: 15px;
+    background: #dc3545; /* Vermelho padrão */
+    color: white;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background 0.3s;
+}
+
+.btn-fechar-modal:hover {
+    background: #c82333;
+}
+
+/* Ajuste para o iframe não ocupar o espaço do botão */
+#frameArquivo {
+    flex-grow: 1; /* Faz o iframe ocupar todo o espaço restante acima do botão */
+    width: 100%;
+    border: none;
+}
+
         /* Estilo da Barra de Busca */
         .busca-container { margin-bottom: 20px; position: relative; }
         #inputBusca { 
@@ -85,12 +122,13 @@
         </div>
     </div>
 
-    <div id="modalArquivo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
-        <div style="background:white; width:95%; height:90%; border-radius:10px; position:relative; display:flex; flex-direction:column;">
-            <button onclick="fecharModal()" style="position:absolute; top:-15px; right:-15px; background:red; color:white; border:none; border-radius:50%; width:40px; height:40px; font-weight:bold; cursor:pointer; box-shadow: 0 2px 5px #000; z-index: 10000;">X</button>
-            <iframe id="frameArquivo" src="" style="width:100%; height:100%; border:none; border-radius:10px;"></iframe>
-        </div>
+   <div id="modalArquivo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
+    <div id="modalConteudo">
+        <iframe id="frameArquivo" src=""></iframe>
+        
+        <button onclick="fecharModal()" class="btn-fechar-modal">Fechar Visualização</button>
     </div>
+</div>
 
     <script>
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbwJtiRVRnzqr3lEQo05WAfoEQQWSx3bzJbHfKCNM0sYzOPJbfnHHmvAaCpzCPBa7q52SQ/exec';
