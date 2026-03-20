@@ -5,68 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Pedidos</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
-        .container { max-width: 800px; margin: auto; }
-        .btn-novo { background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background: #007bff; color: white; }
-        tr:nth-child(even) { background: #f2f2f2; }
-        .link-foto { color: #007bff; text-decoration: none; font-weight: bold; }
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; margin: 0; }
+        .container { max-width: 900px; margin: auto; }
+        h2 { color: #333; }
+        .btn-novo { 
+            background: #28a745; color: white; padding: 12px 20px; 
+            text-decoration: none; border-radius: 5px; display: inline-block; 
+            margin-bottom: 20px; font-weight: bold;
+        }
+        .tabela-wrapper { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border-bottom: 1px solid #eee; padding: 15px; text-align: left; }
+        th { background: #007bff; color: white; text-transform: uppercase; font-size: 13px; }
+        tr:hover { background: #f9f9f9; }
+        .link-foto { color: #007bff; text-decoration: none; font-weight: bold; border: 1px solid #007bff; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
+        .link-foto:hover { background: #007bff; color: white; }
+        #status-msg { margin-bottom: 10px; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>📋 Pedidos Registrados</h2>
         
+        <div id="status-msg">Carregando dados do servidor...</div>
+        
         <a href="cadastro.html" class="btn-novo">+ Novo Registro</a>
 
-        <table id="tabelaDados">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Cliente</th>
-                    <th>Descrição</th>
-                    <th>Arquivo</th>
-                </tr>
-            </thead>
-            <tbody id="corpoTabela">
-                <tr><td colspan="4">Carregando dados...</td></tr>
-            </tbody>
-        </table>
+        <div class="tabela-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Cliente</th>
+                        <th>Descrição</th>
+                        <th>Arquivo</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabela">
+                    </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
+        // CERTIFIQUE-SE DE QUE ESTA URL É A QUE VOCÊ TESTOU NO NAVEGADOR
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxjMQ8EItGj14MhiokhzjJKTPYFVM_uR6J3P0Q2xc02/dev';
 
         async function carregarDados() {
+            const corpo = document.getElementById('corpoTabela');
+            const status = document.getElementById('status-msg');
+
             try {
                 const response = await fetch(URL_SCRIPT);
+                
+                // Se a resposta não for OK, lança erro
+                if (!response.ok) throw new Error("Erro na rede");
+
                 const dados = await response.json();
-                const corpo = document.getElementById('corpoTabela');
                 corpo.innerHTML = '';
 
-                if (dados.length === 0) {
-                    corpo.innerHTML = '<tr><td colspan="4">Nenhum registro encontrado.</td></tr>';
+                if (!dados || dados.length === 0) {
+                    status.innerText = "Nenhum registro encontrado na planilha.";
+                    corpo.innerHTML = '<tr><td colspan="4" style="text-align:center">Planilha vazia.</td></tr>';
                     return;
                 }
 
-                dados.reverse().forEach(item => { // .reverse() para ver o mais recente primeiro
-                    const dataFormatada = new Date(item.data).toLocaleDateString('pt-BR');
-                    corpo.innerHTML += `
+                status.innerText = `Exibindo ${dados.length} registros.`;
+
+                // .reverse() para mostrar os novos primeiro
+                dados.reverse().forEach(item => {
+                    let dataFormatada = "---";
+                    if(item.data) {
+                        const d = new Date(item.data);
+                        dataFormatada = !isNaN(d) ? d.toLocaleDateString('pt-BR') : item.data;
+                    }
+
+                    const row = `
                         <tr>
                             <td>${dataFormatada}</td>
-                            <td>${item.cliente}</td>
-                            <td>${item.descricao}</td>
-                            <td><a href="${item.arquivoUrl}" target="_blank" class="link-foto">Abrir Arquivo</a></td>
+                            <td><strong>${item.cliente || ''}</strong></td>
+                            <td>${item.descricao || ''}</td>
+                            <td>
+                                <a href="${item.arquivoUrl}" target="_blank" class="link-foto">VISUALIZAR</a>
+                            </td>
                         </tr>
                     `;
+                    corpo.innerHTML += row;
                 });
+
             } catch (e) {
-                document.getElementById('corpoTabela').innerHTML = '<tr><td colspan="4">Erro ao carregar dados.</td></tr>';
+                console.error("Erro detalhado:", e);
+                status.innerText = "Erro ao carregar. Verifique o console (F12).";
+                corpo.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red">Falha na conexão com o Google Sheets.</td></tr>';
             }
         }
 
+        // Inicia a carga
         window.onload = carregarDados;
     </script>
 </body>
