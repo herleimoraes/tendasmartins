@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Pedidos</title>
+    <title>Pedidos OS Martins</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,14 +11,14 @@
         <h2>📋 Pedidos Registrados</h2>
         
         <div class="busca-container">
-            <input type="text" id="inputBusca" onkeyup="filtrarTabela()" placeholder="🔍 Buscar cliente ou descrição...">
+            <input type="text" id="inputBusca" onkeyup="filtrarTabela()" placeholder="🔍 Buscar por cliente ou descrição...">
         </div>
 
-        <div id="status-msg">Carregando dados...</div>
+        <div id="status-msg">Conectando ao servidor...</div>
         <a href="cadastro.html" class="btn-novo">+ Novo Registro</a>
 
         <div class="tabela-wrapper">
-            <table>
+            <table id="tabelaPedidos">
                 <thead>
                     <tr>
                         <th>Data</th>
@@ -27,7 +27,8 @@
                         <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody id="corpoTabela"></tbody>
+                <tbody id="corpoTabela">
+                    </tbody>
             </table>
         </div>
     </div>
@@ -40,62 +41,110 @@
     </div>
 
     <script>
+        // SUBSTITUA PELA SUA URL DO GOOGLE APPS SCRIPT
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbwJtiRVRnzqr3lEQo05WAfoEQQWSx3bzJbHfKCNM0sYzOPJbfnHHmvAaCpzCPBa7q52SQ/exec';
 
+        // FUNÇÕES DO MODAL
         function abrirModal(url) {
-            const previewUrl = url.replace('/view', '/preview');
+            if (!url || url === '---') { alert('Este registro não possui arquivo anexo.'); return; }
+            // Transforma link de view em preview para embutir
+            const previewUrl = url.replace('/view', '/preview').replace('?usp=drivesdk', '');
             document.getElementById('frameArquivo').src = previewUrl;
             document.getElementById('modalArquivo').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden'; // Trava scroll do fundo
         }
 
         function fecharModal() {
             document.getElementById('modalArquivo').style.display = 'none';
             document.getElementById('frameArquivo').src = '';
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = 'auto'; // Libera scroll
         }
 
+        // FUNÇÃO DE BUSCA/FILTRO (Melhorada para Mobile)
         function filtrarTabela() {
             const filtro = document.getElementById('inputBusca').value.toLowerCase();
-            const linhas = document.getElementById('corpoTabela').getElementsByTagName('tr');
+            const corpoTablea = document.getElementById('corpoTabela');
+            const linhas = corpoTablea.getElementsByTagName('tr');
+            let resultados = 0;
+
             for (let i = 0; i < linhas.length; i++) {
-                const texto = linhas[i].textContent.toLowerCase();
-                linhas[i].style.display = texto.includes(filtro) ? "" : "none";
+                // Pega o texto visível do card inteiro
+                const textoDoCard = linhas[i].innerText.toLowerCase();
+                if (textoDoCard.includes(filtro)) {
+                    linhas[i].style.display = "";
+                    resultados++;
+                } else {
+                    linhas[i].style.display = "none";
+                }
+            }
+            
+            const status = document.getElementById('status-msg');
+            if (filtro !== '') {
+                status.innerText = `Encontrados ${resultados} registros para "${filtro}".`;
+            } else {
+                // Recarrega o total original (precisaríamos guardar o total global)
+                status.innerText = `Total de registros carregados.`; 
             }
         }
 
+        // FUNÇÃO PRINCIPAL: CARREGAR DADOS
         async function carregarDados() {
             const corpo = document.getElementById('corpoTabela');
             const status = document.getElementById('status-msg');
+            
+            corpo.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px; color: #666;">Carregando pedidos...</td></tr>';
+
             try {
-                const response = await fetch(URL_SCRIPT);
+                // Busca dados no Google Script (GET)
+                const response = await fetch(URL_SCRIPT, { cache: "no-store" });
+                if (!response.ok) throw new Error("Falha na rede");
                 const dados = await response.json();
+                
                 corpo.innerHTML = '';
                 
                 if (!dados || dados.length === 0) {
-                    status.innerText = "Nenhum registro encontrado.";
+                    status.innerText = "Nenhum registro encontrado na planilha.";
+                    corpo.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px;">A planilha está vazia.</td></tr>';
                     return;
                 }
 
-                status.innerText = `Total: ${dados.length} registros.`;
+                status.innerText = `Total: ${dados.length} registros carregados.`;
+
+                // Inverte a ordem para mostrar os novos primeiro
                 dados.reverse().forEach(item => {
-                    let dataFormatada = item.data ? new Date(item.data).toLocaleDateString('pt-BR') : '---';
-                    corpo.innerHTML += `
+                    // Formata a Data
+                    let dataFormatada = "---";
+                    if(item.data) {
+                        const d = new Date(item.data);
+                        dataFormatada = !isNaN(d) ? d.toLocaleDateString('pt-BR') : item.data;
+                    }
+
+                    // Prepara o link do arquivo (segurança se vier vazio)
+                    const urlArquivo = item.arquivoUrl && item.arquivoUrl.includes('drive.google.com') ? item.arquivoUrl : '---';
+
+                    // Monta o HTML da linha (Card no Mobile, Linha no Desktop)
+                    const rowHTML = `
                         <tr>
                             <td>${dataFormatada}</td>
-                            <td><strong>${item.cliente || ''}</strong></td>
-                            <td>${item.descricao || ''}</td>
+                            <td><strong>${item.cliente || 'Cliente não informado'}</strong></td>
+                            <td>${item.descricao || 'Sem descrição detalhada'}</td>
                             <td>
-                                <button onclick="abrirModal('${item.arquivoUrl}')" class="btn-acao btn-visualizar">Visualizar anexos</button>
-                                <button onclick="alert('Editar: ${item.cliente}')" class="btn-acao btn-editar">Editar registro</button>
+                                <button onclick="abrirModal('${urlArquivo}')" class="btn-acao btn-visualizar">Visualizar anexos</button>
+                                <button onclick="alert('Editar: ${item.cliente || 'Registro'}')" class="btn-acao btn-editar">Editar registro</button>
                             </td>
                         </tr>
                     `;
+                    corpo.innerHTML += rowHTML;
                 });
+
             } catch (e) {
-                status.innerText = "Erro ao carregar dados.";
+                console.error("Erro detalhado:", e);
+                status.innerText = "Erro crítico ao conectar com o Google Sheets.";
+                corpo.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red; padding: 30px;">Falha na conexão. Verifique a URL do Script ou permissões da planilha.</td></tr>';
             }
         }
+
+        // Inicia o carregamento ao abrir a página
         window.onload = carregarDados;
     </script>
 </body>
