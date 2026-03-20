@@ -3,108 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Pedidos - OS Martins</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; margin: 0; }
-        .container { max-width: 900px; margin: auto; }
-        h2 { color: #333; margin-bottom: 20px; }
-
-        /* ... mantenha o body e container ... */
-
-@media screen and (max-width: 600px) {
-    table, certain, tbody, th, td, tr { display: block; }
-    thead { display: none; } /* Esconde o cabeçalho no mobile */
-
-    tr { 
-        border: 1px solid #ddd; 
-        margin-bottom: 20px;
-        border-radius: 12px;
-        background: #fff;
-        padding: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }
-
-    /* Linha 1: Data e Cliente lado a lado */
-    td:nth-of-type(1), td:nth-of-type(2) {
-        display: inline-block;
-        width: 50%;
-        border: none;
-        padding: 10px 5px;
-        box-sizing: border-box;
-        text-align: left;
-    }
-
-    /* Estilo específico para destacar o Cliente */
-    td:nth-of-type(2) { 
-        text-align: right; 
-        color: #007bff;
-        font-weight: bold;
-    }
-
-    /* Linha 2: Descrição embaixo */
-    td:nth-of-type(3) {
-        display: block;
-        width: 100%;
-        border-top: 1px solid #f0f0f0;
-        padding: 15px 5px;
-        text-align: left;
-        color: #555;
-        font-size: 14px;
-    }
-
-    /* Linha 3: Botões de Ação */
-    td:nth-of-type(4) {
-        display: flex;
-        flex-direction: column; /* Botões um embaixo do outro */
-        gap: 8px;
-        width: 100%;
-        padding: 10px 0 5px 0;
-        border-top: 1px dashed #eee;
-    }
-
-    /* Esconde os rótulos automáticos "Data:", "Cliente:" que usamos antes */
-    td:before { display: none !important; }
-
-    /* Estilo dos Botões Mobile */
-    .btn-acao {
-        width: 100%;
-        padding: 12px;
-        border-radius: 6px;
-        font-weight: bold;
-        text-transform: uppercase;
-        font-size: 12px;
-        text-align: center;
-        border: 1px solid #ddd;
-        cursor: pointer;
-    }
-
-    .btn-visualizar { background: #f8f9fa; color: #333; }
-    .btn-editar { background: #e9ecef; color: #495057; }
-}
-
-/* Modal com cor Neutra */
-.btn-fechar-modal {
-    width: 100%;
-    padding: 15px;
-    background: #6c757d; /* Cinza Neutro */
-    color: white;
-    border: none;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.btn-fechar-modal:hover { background: #5a6268; }
-    </style>
+    <title>Lista de Pedidos</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <h2>📋 Pedidos Registrados</h2>
         
         <div class="busca-container">
-            <input type="text" id="inputBusca" onkeyup="filtrarTabela()" placeholder="🔍 Buscar por cliente ou descrição...">
+            <input type="text" id="inputBusca" onkeyup="filtrarTabela()" placeholder="🔍 Buscar cliente ou descrição...">
         </div>
 
-        <div id="status-msg">Carregando dados do servidor...</div>
+        <div id="status-msg">Carregando dados...</div>
         <a href="cadastro.html" class="btn-novo">+ Novo Registro</a>
 
         <div class="tabela-wrapper">
@@ -114,7 +24,7 @@
                         <th>Data</th>
                         <th>Cliente</th>
                         <th>Descrição</th>
-                        <th>Arquivo</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody id="corpoTabela"></tbody>
@@ -122,18 +32,16 @@
         </div>
     </div>
 
-   <div id="modalArquivo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
-    <div id="modalConteudo">
-        <iframe id="frameArquivo" src=""></iframe>
-        
-        <button onclick="fecharModal()" class="btn-fechar-modal">Fechar Visualização</button>
+    <div id="modalArquivo">
+        <div id="modalConteudo">
+            <iframe id="frameArquivo" src=""></iframe>
+            <button onclick="fecharModal()" class="btn-fechar-modal">Fechar Visualização</button>
+        </div>
     </div>
-</div>
 
     <script>
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbwJtiRVRnzqr3lEQo05WAfoEQQWSx3bzJbHfKCNM0sYzOPJbfnHHmvAaCpzCPBa7q52SQ/exec';
 
-        // FUNÇÕES DO MODAL
         function abrirModal(url) {
             const previewUrl = url.replace('/view', '/preview');
             document.getElementById('frameArquivo').src = previewUrl;
@@ -147,74 +55,47 @@
             document.body.style.overflow = 'auto';
         }
 
-        function editarRegistro(cliente) {
-    alert("Função de editar para o cliente " + cliente + " será implementada em breve!");
-    // Aqui no futuro poderíamos abrir a página de cadastro passando o ID/Nome para carregar os dados
-}
-
-        // FUNÇÃO DE BUSCA/FILTRO
         function filtrarTabela() {
-            const input = document.getElementById('inputBusca');
-            const filtro = input.value.toLowerCase();
-            const tabela = document.getElementById('corpoTabela');
-            const linhas = tabela.getElementsByTagName('tr');
-
+            const filtro = document.getElementById('inputBusca').value.toLowerCase();
+            const linhas = document.getElementById('corpoTabela').getElementsByTagName('tr');
             for (let i = 0; i < linhas.length; i++) {
-                const textoLinha = linhas[i].textContent || linhas[i].innerText;
-                if (textoLinha.toLowerCase().indexOf(filtro) > -1) {
-                    linhas[i].style.display = "";
-                } else {
-                    linhas[i].style.display = "none";
-                }
+                const texto = linhas[i].textContent.toLowerCase();
+                linhas[i].style.display = texto.includes(filtro) ? "" : "none";
             }
         }
 
         async function carregarDados() {
             const corpo = document.getElementById('corpoTabela');
             const status = document.getElementById('status-msg');
-
             try {
                 const response = await fetch(URL_SCRIPT);
-                if (!response.ok) throw new Error("Erro na rede");
-
                 const dados = await response.json();
                 corpo.innerHTML = '';
-
+                
                 if (!dados || dados.length === 0) {
                     status.innerText = "Nenhum registro encontrado.";
-                    corpo.innerHTML = '<tr><td colspan="4" style="text-align:center">Nenhum dado disponível.</td></tr>';
                     return;
                 }
 
                 status.innerText = `Total: ${dados.length} registros.`;
-
                 dados.reverse().forEach(item => {
-                    let dataFormatada = "---";
-                    if(item.data) {
-                        const d = new Date(item.data);
-                        dataFormatada = !isNaN(d) ? d.toLocaleDateString('pt-BR') : item.data;
-                    }
-
-                    const row = `
+                    let dataFormatada = item.data ? new Date(item.data).toLocaleDateString('pt-BR') : '---';
+                    corpo.innerHTML += `
                         <tr>
                             <td>${dataFormatada}</td>
-                            <td>${item.cliente || ''}</td>
-                            <td>${item.descricao || 'Sem descrição'}</td>
+                            <td><strong>${item.cliente || ''}</strong></td>
+                            <td>${item.descricao || ''}</td>
                             <td>
                                 <button onclick="abrirModal('${item.arquivoUrl}')" class="btn-acao btn-visualizar">Visualizar anexos</button>
-                                <button onclick="editarRegistro('${item.cliente}')" class="btn-acao btn-editar">Editar registro</button>
+                                <button onclick="alert('Editar: ${item.cliente}')" class="btn-acao btn-editar">Editar registro</button>
                             </td>
                         </tr>
                     `;
-                    corpo.innerHTML += row;
                 });
-
             } catch (e) {
-                console.error("Erro:", e);
-                status.innerText = "Erro ao conectar com o Google.";
+                status.innerText = "Erro ao carregar dados.";
             }
         }
-
         window.onload = carregarDados;
     </script>
 </body>
