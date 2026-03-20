@@ -5,98 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Pedidos</title>
     <style>
-      body { font-family: sans-serif; padding: 20px; background: #f4f4f9; margin: 0; }
-.container { max-width: 900px; margin: auto; }
-h2 { color: #333; }
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; margin: 0; }
+        .container { max-width: 900px; margin: auto; }
+        h2 { color: #333; }
 
-/* Botão e Status */
-.btn-novo { 
-    background: #28a745; color: white; padding: 12px 20px; 
-    text-decoration: none; border-radius: 5px; display: inline-block; 
-    margin-bottom: 20px; font-weight: bold;
-}
-#status-msg { margin-bottom: 10px; color: #666; font-style: italic; }
+        .btn-novo { 
+            background: #28a745; color: white; padding: 12px 20px; 
+            text-decoration: none; border-radius: 5px; display: inline-block; 
+            margin-bottom: 20px; font-weight: bold;
+        }
+        #status-msg { margin-bottom: 10px; color: #666; font-style: italic; }
 
-/* Regras Gerais da Tabela (Desktop) */
-.tabela-wrapper { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-table { width: 100%; border-collapse: collapse; }
-th, td { border-bottom: 1px solid #eee; padding: 15px; text-align: left; }
-th { background: #007bff; color: white; text-transform: uppercase; font-size: 13px; }
-tr:hover { background: #f9f9f9; }
+        .tabela-wrapper { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border-bottom: 1px solid #eee; padding: 15px; text-align: left; }
+        th { background: #007bff; color: white; text-transform: uppercase; font-size: 13px; }
+        tr:hover { background: #f9f9f9; }
 
-.link-foto { 
-    color: #007bff; text-decoration: none; font-weight: bold; 
-    border: 1px solid #007bff; padding: 5px 10px; border-radius: 4px; font-size: 12px; 
-}
-.link-foto:hover { background: #007bff; color: white; }
+        .link-foto { 
+            color: #007bff; text-decoration: none; font-weight: bold; 
+            border: 1px solid #007bff; padding: 5px 10px; border-radius: 4px; 
+            font-size: 12px; background: none; cursor: pointer;
+        }
 
-/* REGRAS PARA CELULAR (Sempre por último) */
-@media screen and (max-width: 600px) {
-    table, thead, tbody, th, td, tr { 
-        display: block; 
-    }
-    
-    /* Esconde o cabeçalho azul no mobile */
-    thead tr { 
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-    }
-    
-    tr { 
-        border: 1px solid #ccc; 
-        margin-bottom: 15px;
-        border-radius: 8px;
-        background: #fff;
-        padding: 5px;
-    }
-    
-    td { 
-        border: none;
-        border-bottom: 1px solid #eee; 
-        position: relative;
-        padding-left: 45% !important; /* Força o espaço para o rótulo */
-        text-align: right;
-        min-height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-    }
-
-    td:last-child { border-bottom: none; }
-    
-    /* Cria rótulos para cada dado usando os pseudoelementos */
-    td:before { 
-        position: absolute;
-        left: 10px;
-        width: 40%; 
-        padding-right: 10px; 
-        white-space: nowrap;
-        text-align: left;
-        font-weight: bold;
-        color: #007bff;
-    }
-    
-    td:nth-of-type(1):before { content: "Data"; }
-    td:nth-of-type(2):before { content: "Cliente"; }
-    td:nth-of-type(3):before { content: "Descrição"; }
-    td:nth-of-type(4):before { content: "Ação"; }
-}
-        button.link-foto {
-    background: none;
-    cursor: pointer;
-    display: inline-block;
-    width: auto;
-    margin-bottom: 0;
-}
+        /* REGRAS PARA CELULAR */
+        @media screen and (max-width: 600px) {
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { border: 1px solid #ccc; margin-bottom: 15px; border-radius: 8px; background: #fff; padding: 5px; }
+            td { 
+                border: none; border-bottom: 1px solid #eee; position: relative; 
+                padding-left: 45% !important; text-align: right; min-height: 40px; 
+                display: flex; align-items: center; justify-content: flex-end; 
+            }
+            td:last-child { border-bottom: none; }
+            td:before { 
+                position: absolute; left: 10px; width: 40%; padding-right: 10px; 
+                white-space: nowrap; text-align: left; font-weight: bold; color: #007bff; 
+            }
+            td:nth-of-type(1):before { content: "Data"; }
+            td:nth-of-type(2):before { content: "Cliente"; }
+            td:nth-of-type(3):before { content: "Descrição"; }
+            td:nth-of-type(4):before { content: "Ação"; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>📋 Pedidos Registrados</h2>
-        
         <div id="status-msg">Carregando dados do servidor...</div>
-        
         <a href="cadastro.html" class="btn-novo">+ Novo Registro</a>
 
         <div class="tabela-wrapper">
@@ -109,15 +66,34 @@ tr:hover { background: #f9f9f9; }
                         <th>Arquivo</th>
                     </tr>
                 </thead>
-                <tbody id="corpoTabela">
-                    </tbody>
+                <tbody id="corpoTabela"></tbody>
             </table>
         </div>
     </div>
 
+    <div id="modalArquivo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; width:90%; height:90%; border-radius:10px; position:relative; display:flex; flex-direction:column;">
+            <button onclick="fecharModal()" style="position:absolute; top:-15px; right:-15px; background:red; color:white; border:none; border-radius:50%; width:40px; height:40px; font-weight:bold; cursor:pointer; box-shadow: 0 2px 5px #000; z-index: 10000;">X</button>
+            <iframe id="frameArquivo" src="" style="width:100%; height:100%; border:none; border-radius:10px;"></iframe>
+        </div>
+    </div>
+
     <script>
-        // CERTIFIQUE-SE DE QUE ESTA URL É A QUE VOCÊ TESTOU NO NAVEGADOR
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbwJtiRVRnzqr3lEQo05WAfoEQQWSx3bzJbHfKCNM0sYzOPJbfnHHmvAaCpzCPBa7q52SQ/exec';
+
+        // FUNÇÕES DO MODAL (Agora fora de tudo para serem globais)
+        function abrirModal(url) {
+            const previewUrl = url.replace('/view', '/preview');
+            document.getElementById('frameArquivo').src = previewUrl;
+            document.getElementById('modalArquivo').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalArquivo').style.display = 'none';
+            document.getElementById('frameArquivo').src = '';
+            document.body.style.overflow = 'auto';
+        }
 
         async function carregarDados() {
             const corpo = document.getElementById('corpoTabela');
@@ -125,22 +101,19 @@ tr:hover { background: #f9f9f9; }
 
             try {
                 const response = await fetch(URL_SCRIPT);
-                
-                // Se a resposta não for OK, lança erro
                 if (!response.ok) throw new Error("Erro na rede");
 
                 const dados = await response.json();
                 corpo.innerHTML = '';
 
                 if (!dados || dados.length === 0) {
-                    status.innerText = "Nenhum registro encontrado na planilha.";
+                    status.innerText = "Nenhum registro encontrado.";
                     corpo.innerHTML = '<tr><td colspan="4" style="text-align:center">Planilha vazia.</td></tr>';
                     return;
                 }
 
                 status.innerText = `Exibindo ${dados.length} registros.`;
 
-                // .reverse() para mostrar os novos primeiro
                 dados.reverse().forEach(item => {
                     let dataFormatada = "---";
                     if(item.data) {
@@ -148,51 +121,26 @@ tr:hover { background: #f9f9f9; }
                         dataFormatada = !isNaN(d) ? d.toLocaleDateString('pt-BR') : item.data;
                     }
 
-                    // Altere a linha que cria o botão "VISUALIZAR" para chamar a função abrirModal
-const row = `
-    <tr>
-        <td>${dataFormatada}</td>
-        <td><strong>${item.cliente || ''}</strong></td>
-        <td>${item.descricao || ''}</td>
-        <td>
-            <button onclick="abrirModal('${item.arquivoUrl}')" class="link-foto">VISUALIZAR</button>
-        </td>
-    </tr>
-`;
-
-// Funções do Modal
-function abrirModal(url) {
-    // Transforma o link de visualização comum em link de preview incorporado
-    const previewUrl = url.replace('/view', '/preview');
-    
-    document.getElementById('frameArquivo').src = previewUrl;
-    document.getElementById('modalArquivo').style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // Trava o scroll da página atrás
-}
-
-function fecharModal() {
-    document.getElementById('modalArquivo').style.display = 'none';
-    document.getElementById('frameArquivo').src = '';
-    document.body.style.overflow = 'auto'; // Libera o scroll
-}
+                    const row = `
+                        <tr>
+                            <td>${dataFormatada}</td>
+                            <td><strong>${item.cliente || ''}</strong></td>
+                            <td>${item.descricao || ''}</td>
+                            <td>
+                                <button onclick="abrirModal('${item.arquivoUrl}')" class="link-foto">VISUALIZAR</button>
+                            </td>
+                        </tr>
+                    `;
                     corpo.innerHTML += row;
                 });
 
             } catch (e) {
-                console.error("Erro detalhado:", e);
-                status.innerText = "Erro ao carregar. Verifique o console (F12).";
-                corpo.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red">Falha na conexão com o Google Sheets.</td></tr>';
+                console.error("Erro:", e);
+                status.innerText = "Erro ao carregar dados.";
             }
         }
 
-        // Inicia a carga
         window.onload = carregarDados;
     </script>
-    <div id="modalArquivo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
-    <div style="background:white; width:90%; height:90%; border-radius:10px; position:relative; display:flex; flex-direction:column;">
-        <button onclick="fecharModal()" style="position:absolute; top:-15px; right:-15px; background:red; color:white; border:none; border-radius:50%; width:40px; height:40px; font-weight:bold; cursor:pointer; box-shadow: 0 2px 5px #000;">X</button>
-        <iframe id="frameArquivo" src="" style="width:100%; height:100%; border:none; border-radius:10px;"></iframe>
-    </div>
-</div>
 </body>
 </html>
