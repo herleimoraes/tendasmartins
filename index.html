@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload para o Drive</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+        input, button, textarea { width: 100%; margin-bottom: 15px; padding: 10px; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Novo Registro</h2>
+    <input type="text" id="cliente" placeholder="Nome do Cliente">
+    <textarea id="descricao" placeholder="Descrição do Pedido/Serviço"></textarea>
+    
+    <label>Anexar Foto ou PDF:</label>
+    <input type="file" id="arquivo" accept="image/*,application/pdf" capture="environment">
+    
+    <button onclick="enviar()">Salvar no Google Drive</button>
+    <p id="status"></p>
+
+    <script>
+        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxCw8WQDu-GDr_oXrfCbpdun1Mlf-OW8YUPrkkFSO0WkrOBycAADFnSHRobulwHKOVebA/exec';
+
+        async function enviar() {
+            const status = document.getElementById('status');
+            const fileInput = document.getElementById('arquivo');
+            
+            if (fileInput.files.length === 0) {
+                alert("Por favor, tire uma foto ou selecione um arquivo.");
+                return;
+            }
+
+            status.innerText = "Enviando... aguarde.";
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = async function() {
+                const payload = {
+                    cliente: document.getElementById('cliente').value,
+                    descricao: document.getElementById('descricao').value,
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileBase64: reader.result.split(',')[1]
+                };
+
+                try {
+                    const response = await fetch(URL_SCRIPT, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    const res = await response.json();
+                    if (res.status === "sucesso") {
+                        status.innerText = "Salvo com sucesso!";
+                        document.querySelectorAll('input, textarea').forEach(i => i.value = '');
+                    } else {
+                        status.innerText = "Erro: " + res.error;
+                    }
+                } catch (e) {
+                    status.innerText = "Erro na conexão.";
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
