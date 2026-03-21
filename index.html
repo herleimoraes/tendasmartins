@@ -88,61 +88,94 @@
         }
 
         // FUNÇÃO PRINCIPAL: CARREGAR DADOS
-        async function carregarDados() {
-            const corpo = document.getElementById('corpoTabela');
-            const status = document.getElementById('status-msg');
-            
-            corpo.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px; color: #666;">Carregando pedidos...</td></tr>';
+       async function carregarDados() {
+    const corpo = document.getElementById('corpoTabela');
+    const status = document.getElementById('status-msg');
+    
+    corpo.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px; color: #666;">Carregando pedidos...</td></tr>';
 
-            try {
-                // Busca dados no Google Script (GET)
-                const response = await fetch(URL_SCRIPT, { cache: "no-store" });
-                if (!response.ok) throw new Error("Falha na rede");
-                const dados = await response.json();
-                
-                corpo.innerHTML = '';
-                
-                if (!dados || dados.length === 0) {
-                    status.innerText = "Nenhum registro encontrado na planilha.";
-                    corpo.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px;">A planilha está vazia.</td></tr>';
-                    return;
-                }
-
-                status.innerText = `Total: ${dados.length} registros carregados.`;
-
-                // Inverte a ordem para mostrar os novos primeiro
-                dados.reverse().forEach(item => {
-                    // Formata a Data
-                    let dataFormatada = "---";
-                    if(item.data) {
-                        const d = new Date(item.data);
-                        dataFormatada = !isNaN(d) ? d.toLocaleDateString('pt-BR') : item.data;
-                    }
-
-                    // Prepara o link do arquivo (segurança se vier vazio)
-                    const urlArquivo = item.arquivoUrl && item.arquivoUrl.includes('drive.google.com') ? item.arquivoUrl : '---';
-
-                    // Monta o HTML da linha (Card no Mobile, Linha no Desktop)
-                    const rowHTML = `
-                        <tr>
-                            <td>${dataFormatada}</td>
-                            <td><strong>${item.cliente || 'Cliente não informado'}</strong></td>
-                            <td>${item.descricao || 'Sem descrição detalhada'}</td>
-                            <td>
-                                <button onclick="abrirModal('${urlArquivo}')" class="btn-acao btn-visualizar">Visualizar anexos</button>
-                                <button onclick="alert('Editar: ${item.cliente || 'Registro'}')" class="btn-acao btn-editar">Editar registro</button>
-                            </td>
-                        </tr>
-                    `;
-                    corpo.innerHTML += rowHTML;
-                });
-
-            } catch (e) {
-                console.error("Erro detalhado:", e);
-                status.innerText = "Erro crítico ao conectar com o Google Sheets.";
-                corpo.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red; padding: 30px;">Falha na conexão. Verifique a URL do Script ou permissões da planilha.</td></tr>';
-            }
+    try {
+        const response = await fetch(URL_SCRIPT, { cache: "no-store" });
+        if (!response.ok) throw new Error("Falha na rede");
+        const dadosRaw = await response.json();
+        
+        corpo.innerHTML = '';
+        
+        if (!dadosRaw || dadosRaw.length === 0) {
+            status.innerText = "Nenhum registro encontrado.";
+            corpo.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px;">A planilha está vazia.</td></tr>';
+            return;
         }
+
+        // --- LÓGICA DE AGRUPAMENTO ---
+        const pedidosAgrupados = {};
+
+        dadosRaw.forEach(item => {
+            // Criamos uma chave única baseada no Cliente + Data + Descrição
+            const chave = `${item.cliente}-${item.data}-${item.descricao}`;
+            
+            if (!pedidosAgrupados[chave]) {
+                pedidosAgrupados[chave] = {
+                    data: item.data,
+                    cliente: item.cliente,
+                    descricao: item.descricao,
+                    arquivos: []
+                };
+            }
+            // Adiciona o link ao array de arquivos deste pedido
+            if (item.arquivoUrl && item.arquivoUrl.includes('drive.google.com')) {
+                pedidosAgrupados[chave].arquivos.push(item.arquivoUrl);
+            }
+        });
+
+        const listaFinal = Object.values(pedidosAgrupados);
+        status.innerText = `Exibindo ${listaFinal.length} pedidos (Total de anexos: ${dadosRaw.length}).`;
+
+        // Inverte para ver o mais recente primeiro
+        listaFinal.reverse().forEach(pedido => {
+            let dataFormatada = "---";
+            if(pedido.data) {
+                const d = new Date(pedido.data);
+                dataFormatada = !isNaN(d) ? d.toLocaleDateString('pt-BR') : pedido.data;
+            }
+
+            // Cria os botões de anexos dinamicamente
+            let botoesAnexos = "";
+            if (pedido.arquivos.length > 0) {
+                pedido.arquivos.forEach((url, index) => {
+                    botoesAnexos += `<button onclick="abrirModal('${url}')" class="btn-acao btn-visualizar">Anexo ${index + 1}</button>`;
+                });
+            } else {
+                botoesAnexos = `<span style="color:#999; font-size:12px;">Sem anexos</span>`;
+            }
+
+            const rowHTML = `
+                <tr>
+                    <td>${dataFormatada}</td>
+                    <td><strong>${pedido.cliente || 'Cliente não informado'}</strong></td>
+                    <td>${pedido.descricao || 'Sem descrição'}</td>
+                    <td>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            ${botoesAnexos}
+                            <button onclick="irParaEditar('${encodeURIComponent(pedido.cliente)}', '${encodeURIComponent(pedido.descricao)}')" class="btn-acao btn-editar" style="margin-top:5px; border-top: 1px dashed #ccc; padding-top:10px;">Editar registro</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            corpo.innerHTML += rowHTML;
+        });
+
+    } catch (e) {
+        console.error("Erro:", e);
+        status.innerText = "Erro ao carregar dados.";
+        corpo.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red; padding: 30px;">Falha na conexão.</td></tr>';
+    }
+}
+
+// Função auxiliar para o botão editar (que você já deve ter ou precisa adicionar)
+function irParaEditar(cliente, descricao) {
+    window.location.href = `cadastro.html?edit=true&cliente=${cliente}&desc=${descricao}`;
+}
 
         // Inicia o carregamento ao abrir a página
         window.onload = carregarDados;
