@@ -5,50 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Novo Registro - Drive</title>
     <style>
-        /* Estilização seguindo o padrão da Index */
         body { font-family: sans-serif; padding: 20px; background: #f4f4f9; margin: 0; }
         .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         h2 { color: #333; margin-top: 0; display: flex; align-items: center; gap: 10px; }
         
         label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input, textarea, button { 
-            width: 100%; 
-            margin-bottom: 20px; 
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 5px; 
-            box-sizing: border-box; 
-            font-size: 16px; 
-        }
-        
+        input, textarea, button { width: 100%; margin-bottom: 20px; padding: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
         textarea { height: 100px; resize: vertical; }
         
-        button { 
-            background: #28a745; 
-            color: white; 
-            border: none; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: background 0.3s;
-        }
-        button:hover { background: #218838; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
+        /* Botão Principal */
+        #btnEnviar { background: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; }
+        #btnEnviar:disabled { background: #ccc; }
 
-        .btn-voltar { 
-            display: inline-block; 
-            margin-bottom: 20px; 
-            text-decoration: none; 
-            color: #007bff; 
-            font-weight: bold; 
-        }
+        /* Estilo para Adicionar Mais Arquivos */
+        .upload-container { background: #f8f9fa; border: 2px dashed #ddd; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+        .btn-anexo { background: #007bff; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; margin-top: 10px; font-size: 14px; }
         
-        #status { 
-            padding: 10px; 
-            border-radius: 5px; 
-            display: none; 
-            text-align: center; 
-            font-weight: bold; 
-        }
+        /* Lista de arquivos selecionados */
+        #listaArquivos { text-align: left; margin-top: 10px; font-size: 13px; color: #666; }
+        .arquivo-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 5px 10px; margin-bottom: 5px; border-radius: 4px; border: 1px solid #eee; }
+        .btn-remover { color: red; cursor: pointer; font-weight: bold; border: none; background: none; width: auto; margin: 0; padding: 0; }
+
+        .btn-voltar { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #007bff; font-weight: bold; }
+        #status { padding: 10px; border-radius: 5px; display: none; text-align: center; font-weight: bold; }
         .loading { color: #856404; background: #fff3cd; display: block !important; }
     </style>
 </head>
@@ -56,7 +35,7 @@
 
     <div class="container">
         <a href="index.html" class="btn-voltar">← Voltar para a lista</a>
-        <h2>📸 Novo Registro</h2>
+        <h2 id="tituloPagina">📸 Novo Registro</h2>
         
         <label for="cliente">Nome do Cliente</label>
         <input type="text" id="cliente" placeholder="Ex: João Silva">
@@ -64,72 +43,132 @@
         <label for="descricao">Descrição do Pedido</label>
         <textarea id="descricao" placeholder="Detalhes do serviço ou produto..."></textarea>
         
-        <label for="arquivo">Anexar Foto ou PDF</label>
-        <input type="file" id="arquivo" accept="image/*,application/pdf" capture="environment">
+        <label>Anexar Arquivos (Fotos ou PDF)</label>
+        <div class="upload-container">
+            <span id="labelUpload">Nenhum arquivo selecionado</span>
+            <input type="file" id="arquivo" accept="image/*,application/pdf" capture="environment" style="display: none;" multiple onchange="atualizarLista()">
+            <button type="button" class="btn-anexo" onclick="document.getElementById('arquivo').click()">+ Adicionar Anexos</button>
+            
+            <div id="listaArquivos"></div>
+        </div>
         
         <button id="btnEnviar" onclick="enviar()">Salvar e Voltar</button>
         <div id="status"></div>
     </div>
 
     <script>
-        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbwcxws_JV_jDxRxDoqoUaYgqMl5ZWFvG6czLJ97_bAew7mwHqI3yr0dZ8lX8G-yKLOryQ/exec';
+        const URL_SCRIPT = 'SUA_URL_DO_WEB_APP_AQUI'; // Use sua URL /exec
+        let arquivosParaEnviar = [];
+
+        // Preencher campos se for Edição
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('edit') === 'true') {
+                document.getElementById('tituloPagina').innerText = "📝 Editar Registro";
+                document.getElementById('cliente').value = decodeURIComponent(params.get('cliente') || '');
+                document.getElementById('descricao').value = decodeURIComponent(params.get('desc') || '');
+            }
+        };
+
+        function atualizarLista() {
+            const input = document.getElementById('arquivo');
+            const lista = document.getElementById('listaArquivos');
+            const files = Array.from(input.files);
+
+            files.forEach(file => {
+                // Evita duplicados na lista visual
+                if (!arquivosParaEnviar.find(a => a.name === file.name)) {
+                    arquivosParaEnviar.push(file);
+                }
+            });
+
+            renderizarLista();
+        }
+
+        function renderizarLista() {
+            const lista = document.getElementById('listaArquivos');
+            const label = document.getElementById('labelUpload');
+            lista.innerHTML = "";
+            
+            if (arquivosParaEnviar.length === 0) {
+                label.innerText = "Nenhum arquivo selecionado";
+                return;
+            }
+
+            label.innerText = `${arquivosParaEnviar.length} arquivo(s) prontos`;
+
+            arquivosParaEnviar.forEach((file, index) => {
+                lista.innerHTML += `
+                    <div class="arquivo-item">
+                        <span>${file.name}</span>
+                        <button class="btn-remover" onclick="removerArquivo(${index})">remover</button>
+                    </div>
+                `;
+            });
+        }
+
+        function removerArquivo(index) {
+            arquivosParaEnviar.splice(index, 1);
+            renderizarLista();
+        }
 
         async function enviar() {
             const btn = document.getElementById('btnEnviar');
             const status = document.getElementById('status');
-            const fileInput = document.getElementById('arquivo');
+            const nomeCliente = document.getElementById('cliente').value;
             
-            if (!document.getElementById('cliente').value || fileInput.files.length === 0) {
-                alert("Preencha o nome do cliente e anexe um arquivo.");
+            if (!nomeCliente || arquivosParaEnviar.length === 0) {
+                alert("Preencha o nome do cliente e anexe pelo menos um arquivo.");
                 return;
             }
 
-            // Desabilita o botão e mostra status de carregamento
             btn.disabled = true;
-            status.innerText = "Enviando para o Google Drive...";
+            status.innerText = "Preparando arquivos... aguarde.";
             status.className = "loading";
             status.style.display = "block";
 
-            const file = fileInput.files[0];
-            const reader = new FileReader();
+            try {
+                // Loop para enviar cada arquivo um por um (mais estável para o Google Script)
+                for (let i = 0; i < arquivosParaEnviar.length; i++) {
+                    const file = arquivosParaEnviar[i];
+                    status.innerText = `Enviando arquivo ${i+1} de ${arquivosParaEnviar.length}...`;
+                    
+                    const base64 = await toBase64(file);
+                    
+                    const payload = {
+                        cliente: nomeCliente,
+                        descricao: document.getElementById('descricao').value,
+                        fileName: file.name,
+                        fileType: file.type,
+                        fileBase64: base64.split(',')[1]
+                    };
 
-            reader.onload = async function() {
-                const payload = {
-                    cliente: document.getElementById('cliente').value,
-                    descricao: document.getElementById('descricao').value,
-                    fileName: file.name,
-                    fileType: file.type,
-                    fileBase64: reader.result.split(',')[1]
-                };
-
-                try {
-                    const response = await fetch(URL_SCRIPT, {
+                    await fetch(URL_SCRIPT, {
                         method: 'POST',
                         body: JSON.stringify(payload)
                     });
-                    
-                    const res = await response.json();
-                    
-                    if (res.status === "sucesso") {
-                        status.innerText = "Sucesso! Redirecionando...";
-                        status.style.background = "#d4edda";
-                        status.style.color = "#155724";
-                        
-                        // Redireciona para a index após 1.5 segundos
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 1500);
-                    } else {
-                        throw new Error(res.error);
-                    }
-                } catch (e) {
-                    alert("Erro ao salvar: " + e.message);
-                    btn.disabled = false;
-                    status.style.display = "none";
                 }
-            };
-            reader.readAsDataURL(file);
+
+                status.innerText = "Tudo salvo! Redirecionando...";
+                status.style.background = "#d4edda";
+                status.style.color = "#155724";
+
+                setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+
+            } catch (e) {
+                alert("Erro ao salvar: " + e.message);
+                btn.disabled = false;
+                status.style.display = "none";
+            }
         }
+
+        // Helper para converter arquivo em base64 (Promise)
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
     </script>
 </body>
 </html>
